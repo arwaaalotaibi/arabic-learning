@@ -13,6 +13,10 @@ type Mode = 'trace' | 'dots' | 'color';
 
 const COLORS = ['#7209B7', '#F72585', '#4CC9F0', '#FFBE0B', '#06C167', '#FF6B35', '#2A1B4A'];
 
+// letters where the natural first-stroke direction is vertical (top-to-bottom),
+// so we don't penalize lack of leftward motion on them
+const VERTICAL_FIRST = ['ا', 'ل', 'ك', 'ط', 'ظ'];
+
 export default function WritingScreen({ index, onChange, onComplete }: Props) {
   const L = LETTERS[index];
   const c = TILE_COLORS[index % TILE_COLORS.length];
@@ -22,9 +26,19 @@ export default function WritingScreen({ index, onChange, onComplete }: Props) {
   const [mode, setMode] = useState<Mode>('trace');
   const [penColor, setPenColor] = useState(COLORS[0]);
   const [step, setStep] = useState(0);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const drawing = useRef(false);
   const last = useRef<{ x: number; y: number } | null>(null);
+  const strokeStart = useRef<{ x: number; y: number } | null>(null);
+  const directionChecked = useRef(false);
+  const errorTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const showError = (msg: string) => {
+    if (errorTimer.current) clearTimeout(errorTimer.current);
+    setErrorMsg(msg);
+    errorTimer.current = setTimeout(() => setErrorMsg(null), 1600);
+  };
 
   const clear = () => {
     const cv = canvasRef.current;
@@ -61,8 +75,19 @@ export default function WritingScreen({ index, onChange, onComplete }: Props) {
   const start = (e: React.MouseEvent | React.TouchEvent) => {
     e.preventDefault();
     drawing.current = true;
-    last.current = getPos(e);
+    const p = getPos(e);
+    last.current = p;
+    strokeStart.current = p;
+    directionChecked.current = false;
     setStep((s) => s + 1);
+
+    if (mode !== 'trace' && mode !== 'dots') return;
+    const cv = canvasRef.current;
+    if (!cv) return;
+    // wrong start: touched the left 40% of the canvas
+    if (p.x < cv.width * 0.4) {
+      showError('ابدَأ مِنَ اليَمين 👉');
+    }
   };
   const move = (e: React.MouseEvent | React.TouchEvent) => {
     if (!drawing.current) return;
@@ -80,9 +105,27 @@ export default function WritingScreen({ index, onChange, onComplete }: Props) {
     ctx.lineTo(p.x, p.y);
     ctx.stroke();
     last.current = p;
+
+    // direction check: once user has moved ~30px from stroke start, decide if
+    // the dominant initial motion is leftward (correct in RTL) or rightward (wrong)
+    if (!directionChecked.current && strokeStart.current && (mode === 'trace' || mode === 'dots')) {
+      const dx = p.x - strokeStart.current.x;
+      const dy = p.y - strokeStart.current.y;
+      const dist = Math.hypot(dx, dy);
+      if (dist > 30) {
+        directionChecked.current = true;
+        const isVerticalFirst = VERTICAL_FIRST.includes(L.l);
+        // wrong if moving strongly rightward AND not a vertical-first letter
+        if (!isVerticalFirst && dx > 18 && Math.abs(dx) > Math.abs(dy)) {
+          showError('اِكتُب مِنَ اليَمين لِليَسار 👈');
+        }
+      }
+    }
   };
   const end = () => {
     drawing.current = false;
+    strokeStart.current = null;
+    directionChecked.current = false;
   };
 
   return (
@@ -140,6 +183,20 @@ export default function WritingScreen({ index, onChange, onComplete }: Props) {
       <div className="write-card">
         <div className="canvas-box" style={{ background: c.bg + '55' }}>
           <div className="step-hint">الخُطوة {step || 1}</div>
+
+          {(mode === 'trace' || mode === 'dots') && (
+            <div className="start-here" aria-hidden="true">
+              <span className="dot" />
+              <span className="lbl">ابدَأ هُنا</span>
+            </div>
+          )}
+
+          {errorMsg && (
+            <div className="write-error" role="alert">
+              <span className="x">✕</span>
+              <span>{errorMsg}</span>
+            </div>
+          )}
 
           {mode === 'trace' && (
             <>
