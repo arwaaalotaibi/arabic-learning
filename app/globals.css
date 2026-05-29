@@ -364,7 +364,7 @@ html, body {
 }
 .big-letter-card .glyph {
   font-family: var(--font-letter);
-  font-size: 360px;
+  font-size: 250px;
   line-height: 0.9;
   font-weight: 700;
   text-shadow: 0 8px 0 rgba(0,0,0,0.06);
@@ -387,34 +387,52 @@ html, body {
 }
 .haraka-card {
   background: #fff;
-  border-radius: 28px;
-  padding: 16px 20px;
-  display: grid;
-  grid-template-columns: 110px 1fr auto;
-  gap: 16px;
-  align-items: center;
+  border-radius: 26px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
   border: 3px solid #fff;
   box-shadow: 0 10px 22px rgba(114, 9, 183, 0.1);
-  cursor: pointer;
-  transition: transform .15s;
   flex: 1;
+  min-height: 0;
 }
-.haraka-card:hover { transform: translateY(-3px) scale(1.01); }
-.haraka-card .blob {
-  width: 96px;
-  height: 96px;
-  border-radius: 24px;
+
+.sound-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  flex: 1;
+  min-height: 0;
+}
+.sound-btn {
+  border: 2px solid;
+  border-radius: 20px;
+  cursor: pointer;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-family: var(--font-letter);
-  font-size: 64px;
-  font-weight: 700;
+  gap: 4px;
+  padding: 6px;
+  transition: transform .12s, box-shadow .12s;
 }
-.haraka-card .info .nm { font-family: var(--font-fun); font-size: 26px; line-height: 1; }
-.haraka-card .info .ph { font-weight: 700; font-size: 18px; color: var(--ink-soft); margin-top: 4px; }
-.haraka-card .info .ex { font-size: 14px; color: var(--ink-soft); margin-top: 2px; }
-.haraka-card.active { transform: translateY(-3px) scale(1.02); }
+.sound-btn:hover { transform: translateY(-2px); }
+.sound-btn:active { transform: scale(.96); }
+.sound-btn.active { transform: scale(1.03); box-shadow: 0 6px 16px rgba(0,0,0,.12); }
+.sound-btn .sb-glyph {
+  font-family: var(--font-letter);
+  font-size: 52px;
+  font-weight: 700;
+  line-height: 1;
+}
+.sound-btn .sb-tag {
+  font-family: var(--font-ui);
+  font-weight: 800;
+  font-size: 14px;
+  opacity: .9;
+  text-align: center;
+  line-height: 1.2;
+}
 
 .write-card {
   flex: 1;

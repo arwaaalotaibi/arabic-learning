@@ -69,6 +69,20 @@ export const HARAKAT: Haraka[] = [
   { name: 'كَسْرَة', mark: 'ِ', sound: 'i', color: '#4CC9F0', emoji: '↘' },
 ];
 
+export type Madd = {
+  name: string;
+  mark: string; // the short haraka mark that precedes the long letter
+  vowel: string; // the long vowel letter (ا / و / ي)
+  sound: 'a' | 'u' | 'i';
+  color: string;
+};
+
+export const MUDOOD: Madd[] = [
+  { name: 'مَدّ بِالأَلِف', mark: 'َ', vowel: 'ا', sound: 'a', color: '#F72585' },
+  { name: 'مَدّ بِالواو', mark: 'ُ', vowel: 'و', sound: 'u', color: '#FFBE0B' },
+  { name: 'مَدّ بِالياء', mark: 'ِ', vowel: 'ي', sound: 'i', color: '#4CC9F0' },
+];
+
 export const NON_CONNECTING = ['ا', 'د', 'ذ', 'ر', 'ز', 'و'];
 
 export function getLetterForms(letter: string): LetterForm[] {
@@ -126,7 +140,10 @@ export type Screen = 'home' | 'letter' | 'write' | 'game' | 'profile';
 //   public/audio/letters/0.m4a .. 27.m4a   → اسم الحرف
 //   public/audio/words/0.m4a .. 27.m4a      → الكلمة المثال
 //   public/audio/harakat/0-a.m4a, 0-u.m4a, 0-i.m4a ...  → الحرف مع الحركة
+//   public/audio/madd/0-a.m4a, 0-u.m4a, 0-i.m4a ...      → الحرف مع المدّ الطويل
 export const letterClip = (index: number) => `/audio/letters/${index}.m4a`;
 export const wordClip = (index: number) => `/audio/words/${index}.m4a`;
 export const harakaClip = (index: number, sound: Haraka['sound']) =>
   `/audio/harakat/${index}-${sound}.m4a`;
+export const maddClip = (index: number, sound: Madd['sound']) =>
+  `/audio/madd/${index}-${sound}.m4a`;

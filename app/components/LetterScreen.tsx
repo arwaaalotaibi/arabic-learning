@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { LETTERS, TILE_COLORS, HARAKAT, Screen, letterClip, wordClip, harakaClip } from '@/lib/data';
+import { LETTERS, TILE_COLORS, HARAKAT, MUDOOD, Screen, letterClip, wordClip, harakaClip, maddClip } from '@/lib/data';
 import { useSpeech } from '@/lib/speech';
 
 type Props = {
@@ -102,26 +102,30 @@ export default function LetterScreen({ index, onChange, onGoto }: Props) {
         </div>
 
         <div className="harakat-stack">
-          {HARAKAT.map((h) => {
-            const display = L.l + h.mark;
-            const isPlaying = playing === display;
+          {HARAKAT.map((h, idx) => {
+            const m = MUDOOD[idx];
+            const shortText = L.l + h.mark;
+            const longText = L.l + m.mark + m.vowel;
             return (
-              <div key={h.name} className={`haraka-card${isPlaying ? ' active' : ''}`} onClick={() => speak(display, harakaClip(index, h.sound))}>
-                <div className="blob" style={{ background: h.color + '22', color: h.color }}>
-                  {display}
+              <div key={h.name} className="haraka-card">
+                <div className="sound-pair">
+                  <button
+                    className={`sound-btn${playing === shortText ? ' active' : ''}`}
+                    style={{ background: h.color + '14', color: h.color, borderColor: h.color + '33' }}
+                    onClick={() => speak(shortText, harakaClip(index, h.sound))}
+                  >
+                    <span className="sb-glyph">{shortText}</span>
+                    <span className="sb-tag">{h.name} ▶</span>
+                  </button>
+                  <button
+                    className={`sound-btn${playing === longText ? ' active' : ''}`}
+                    style={{ background: m.color + '14', color: m.color, borderColor: m.color + '33' }}
+                    onClick={() => speak(longText, maddClip(index, m.sound))}
+                  >
+                    <span className="sb-glyph">{longText}</span>
+                    <span className="sb-tag">{m.name} ▶</span>
+                  </button>
                 </div>
-                <div className="info">
-                  <div className="nm" style={{ color: h.color }}>{h.name}</div>
-                  <div className="ph">يَنطِق: «{display}»</div>
-                  <div className="ex">
-                    {h.sound === 'a' ? 'الصَّوتُ المَفتوح' : h.sound === 'u' ? 'الصَّوتُ المَضموم' : 'الصَّوتُ المَكسور'}
-                  </div>
-                </div>
-                <button className="circle-btn" style={{ background: h.color, color: '#fff' }} aria-label="اِستَمِع">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                    <polygon points="6 4 6 20 10 20 16 24 16 0 10 4" />
-                  </svg>
-                </button>
               </div>
             );
           })}
