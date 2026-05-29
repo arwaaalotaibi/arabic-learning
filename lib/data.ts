@@ -118,3 +118,15 @@ export const LETTER_FONTS: Record<Tweaks['letterFont'], { label: string; family:
 };
 
 export type Screen = 'home' | 'letter' | 'write' | 'game' | 'profile';
+
+// Pre-recorded clip paths (under /public/audio). If a file is missing, the
+// speech helper falls back to TTS automatically. These are generated with the
+// macOS `say -v Maged` voice via scripts/gen-audio.sh for clear, consistent
+// audio on every device:
+//   public/audio/letters/0.m4a .. 27.m4a   → اسم الحرف
+//   public/audio/words/0.m4a .. 27.m4a      → الكلمة المثال
+//   public/audio/harakat/0-a.m4a, 0-u.m4a, 0-i.m4a ...  → الحرف مع الحركة
+export const letterClip = (index: number) => `/audio/letters/${index}.m4a`;
+export const wordClip = (index: number) => `/audio/words/${index}.m4a`;
+export const harakaClip = (index: number, sound: Haraka['sound']) =>
+  `/audio/harakat/${index}-${sound}.m4a`;

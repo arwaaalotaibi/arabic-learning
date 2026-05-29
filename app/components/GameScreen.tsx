@@ -1,7 +1,8 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-import { LETTERS, TILE_COLORS, Letter } from '@/lib/data';
+import { useEffect, useMemo, useState } from 'react';
+import { LETTERS, TILE_COLORS, Letter, letterClip } from '@/lib/data';
+import { useSpeech } from '@/lib/speech';
 
 type Props = {
   index: number;
@@ -15,6 +16,7 @@ export default function GameScreen({ index, onChange, onComplete }: Props) {
   const [picked, setPicked] = useState<Letter | null>(null);
   const [round, setRound] = useState(0);
   const [correctCount, setCorrectCount] = useState(0);
+  const { speak: say } = useSpeech();
 
   const options = useMemo(() => {
     const others = LETTERS.filter((_, i) => i !== index);
@@ -41,17 +43,13 @@ export default function GameScreen({ index, onChange, onComplete }: Props) {
     }
   };
 
-  const speak = () => {
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      try {
-        const u = new SpeechSynthesisUtterance(L.name);
-        u.lang = 'ar-SA';
-        u.rate = 0.7;
-        window.speechSynthesis.cancel();
-        window.speechSynthesis.speak(u);
-      } catch {}
-    }
-  };
+  const speak = () => say(L.name, { clip: letterClip(index) });
+
+  // Pronounce the target letter automatically at the start of each round.
+  useEffect(() => {
+    say(L.name, { clip: letterClip(index) });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [index, round]);
 
   return (
     <div className="screen">

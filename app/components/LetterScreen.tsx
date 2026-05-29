@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { LETTERS, TILE_COLORS, HARAKAT, Screen } from '@/lib/data';
+import { LETTERS, TILE_COLORS, HARAKAT, Screen, letterClip, wordClip, harakaClip } from '@/lib/data';
+import { useSpeech } from '@/lib/speech';
 
 type Props = {
   index: number;
@@ -13,18 +14,11 @@ export default function LetterScreen({ index, onChange, onGoto }: Props) {
   const L = LETTERS[index];
   const c = TILE_COLORS[index % TILE_COLORS.length];
   const [playing, setPlaying] = useState<string | null>(null);
+  const { speak: say } = useSpeech();
 
-  const speak = (text: string) => {
+  const speak = (text: string, clip?: string) => {
     setPlaying(text);
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      try {
-        const u = new SpeechSynthesisUtterance(text);
-        u.lang = 'ar-SA';
-        u.rate = 0.7;
-        window.speechSynthesis.cancel();
-        window.speechSynthesis.speak(u);
-      } catch {}
-    }
+    say(text, clip ? { clip } : undefined);
     setTimeout(() => setPlaying(null), 900);
   };
 
@@ -61,7 +55,7 @@ export default function LetterScreen({ index, onChange, onGoto }: Props) {
           <div
             className="glyph"
             style={{ color: c.ink, cursor: 'pointer' }}
-            onClick={() => speak(L.name)}
+            onClick={() => speak(L.name, letterClip(index))}
             title="اِضغَط لِتَسمَع اسم الحَرف"
           >
             {L.l}
@@ -70,7 +64,7 @@ export default function LetterScreen({ index, onChange, onGoto }: Props) {
             <span style={{ fontFamily: 'var(--font-letter)', fontSize: 32, color: c.ink, fontWeight: 700 }}>{L.word}</span>
             <button
               className="circle-btn"
-              onClick={() => speak(L.word)}
+              onClick={() => speak(L.word, wordClip(index))}
               style={{ width: 40, height: 40, color: c.accent }}
               title="اِستَمِع لِلكَلِمة"
             >
@@ -81,7 +75,7 @@ export default function LetterScreen({ index, onChange, onGoto }: Props) {
             </button>
           </div>
           <button
-            onClick={() => speak(L.name)}
+            onClick={() => speak(L.name, letterClip(index))}
             style={{
               marginTop: 10,
               background: c.accent,
@@ -112,7 +106,7 @@ export default function LetterScreen({ index, onChange, onGoto }: Props) {
             const display = L.l + h.mark;
             const isPlaying = playing === display;
             return (
-              <div key={h.name} className={`haraka-card${isPlaying ? ' active' : ''}`} onClick={() => speak(display)}>
+              <div key={h.name} className={`haraka-card${isPlaying ? ' active' : ''}`} onClick={() => speak(display, harakaClip(index, h.sound))}>
                 <div className="blob" style={{ background: h.color + '22', color: h.color }}>
                   {display}
                 </div>
